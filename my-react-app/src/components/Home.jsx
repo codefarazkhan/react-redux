@@ -4,10 +4,14 @@ import { useNavigate } from 'react-router-dom'
 function Home() {
   const navigate = useNavigate()
   const { userData, sharedData, items } = useSelector((state) => state.data)
+  const { isAuthenticated, user } = useSelector((state) => state.auth)
   const count = useSelector((state) => state.counter.value)
 
   const goToPage1 = () => navigate('/page1')
   const goToPage2 = () => navigate('/page2')
+  const goToLogin = () => navigate('/login')
+  const goToSignup = () => navigate('/signup')
+  const goToDashboard = () => navigate('/dashboard')
 
   return (
     <div className="fade-in" style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
@@ -16,8 +20,51 @@ function Home() {
       </h1>
       
       <p style={{ fontSize: '1.2rem', textAlign: 'center', marginBottom: '3rem' }}>
-        This app demonstrates routing between pages and data sharing using Redux.
+        This app demonstrates routing between pages, data sharing using Redux, and JWT authentication.
       </p>
+
+      {/* Authentication Section */}
+      <div className="section" style={{ marginBottom: '3rem' }}>
+        <h2 style={{ textAlign: 'center', marginBottom: '2rem', color: '#4a5568' }}>
+          🔐 Authentication
+        </h2>
+        {isAuthenticated ? (
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <p style={{ fontSize: '1.1rem', color: '#48bb78', marginBottom: '1rem' }}>
+              ✅ Welcome back, {user?.name || 'User'}!
+            </p>
+            <button 
+              onClick={goToDashboard}
+              className="btn btn-primary"
+              style={{ margin: '0.5rem' }}
+            >
+              Go to Dashboard →
+            </button>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+            <p style={{ fontSize: '1.1rem', color: '#718096', marginBottom: '1.5rem' }}>
+              Sign in to access your personal dashboard
+            </p>
+            <div>
+              <button 
+                onClick={goToLogin}
+                className="btn btn-primary"
+                style={{ margin: '0.5rem' }}
+              >
+                Sign In
+              </button>
+              <button 
+                onClick={goToSignup}
+                className="btn btn-info"
+                style={{ margin: '0.5rem' }}
+              >
+                Create Account
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Current State Overview */}
       <div className="section section-summary">
@@ -131,6 +178,12 @@ function Home() {
           </div>
           <div className="feature-list-item">
             <strong>💬 Set and update</strong> shared messages
+          </div>
+          <div className="feature-list-item">
+            <strong>🔐 Secure authentication</strong> with JWT tokens
+          </div>
+          <div className="feature-list-item">
+            <strong>📱 Protected dashboard</strong> for authenticated users
           </div>
         </div>
       </div>

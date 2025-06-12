@@ -4,15 +4,18 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage for 
 import { combineReducers } from '@reduxjs/toolkit'
 import counterReducer from './counterSlice'
 import dataReducer from './dataSlice'
+import authReducer from './authSlice'
 
 const persistConfig = {
   key: 'root',
   storage,
+  blacklist: ['auth'] // Don't persist auth state as we handle tokens separately
 }
 
 const rootReducer = combineReducers({
   counter: counterReducer,
   data: dataReducer,
+  auth: authReducer,
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
