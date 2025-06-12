@@ -5,6 +5,7 @@ import { combineReducers } from '@reduxjs/toolkit'
 import counterReducer from './counterSlice'
 import dataReducer from './dataSlice'
 import authReducer from './authSlice'
+import todoReducer from './todoSlice'
 
 const persistConfig = {
   key: 'root',
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   counter: counterReducer,
   data: dataReducer,
   auth: authReducer,
+  todos: todoReducer
 })
 
 const persistedReducer = persistReducer(persistConfig, rootReducer)
@@ -30,4 +32,6 @@ export const store = configureStore({
     }),
 })
 
-export const persistor = persistStore(store) 
+export const persistor = persistStore(store)
+
+export default store 

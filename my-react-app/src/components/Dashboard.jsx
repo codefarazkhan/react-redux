@@ -1,11 +1,21 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
 import { logout } from '../store/authSlice'
+import { fetchTodos } from '../store/todoSlice'
+import TodoList from './TodoList'
 
 const Dashboard = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { user, isAuthenticated } = useSelector((state) => state.auth)
+  const { todos } = useSelector((state) => state.todos)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchTodos())
+    }
+  }, [dispatch, isAuthenticated])
 
   const handleLogout = () => {
     dispatch(logout())
@@ -17,12 +27,23 @@ const Dashboard = () => {
     return null
   }
 
+  const todoStats = {
+    total: todos.length,
+    completed: todos.filter(todo => todo.completed).length,
+    pending: todos.filter(todo => !todo.completed).length,
+    todayTodos: todos.filter(todo => {
+      const today = new Date().toDateString()
+      const todoDate = new Date(todo.createdAt).toDateString()
+      return today === todoDate
+    }).length
+  }
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
         <div className="dashboard-title">
           <h1>Dashboard</h1>
-          <p>Welcome to your personal dashboard</p>
+          <p>Welcome back, {user?.name || 'User'}!</p>
         </div>
         <button onClick={handleLogout} className="logout-button">
           Logout
@@ -43,77 +64,40 @@ const Dashboard = () => {
 
         <div className="dashboard-stats">
           <div className="stat-card">
-            <div className="stat-icon">📊</div>
+            <div className="stat-icon">📝</div>
             <div className="stat-content">
-              <h4>Total Projects</h4>
-              <p className="stat-number">12</p>
+              <h4>Total Todos</h4>
+              <p className="stat-number">{todoStats.total}</p>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="stat-icon">✅</div>
             <div className="stat-content">
-              <h4>Completed Tasks</h4>
-              <p className="stat-number">48</p>
+              <h4>Completed</h4>
+              <p className="stat-number">{todoStats.completed}</p>
             </div>
           </div>
 
           <div className="stat-card">
             <div className="stat-icon">⏰</div>
             <div className="stat-content">
-              <h4>Pending Tasks</h4>
-              <p className="stat-number">7</p>
+              <h4>Pending</h4>
+              <p className="stat-number">{todoStats.pending}</p>
             </div>
           </div>
 
           <div className="stat-card">
-            <div className="stat-icon">🎯</div>
+            <div className="stat-icon">🆕</div>
             <div className="stat-content">
-              <h4>Goals Achieved</h4>
-              <p className="stat-number">23</p>
+              <h4>Today</h4>
+              <p className="stat-number">{todoStats.todayTodos}</p>
             </div>
           </div>
         </div>
 
-        <div className="dashboard-actions">
-          <div className="action-card">
-            <h4>Quick Actions</h4>
-            <div className="action-buttons">
-              <button className="action-button primary">
-                Create New Project
-              </button>
-              <button className="action-button secondary">
-                View Reports
-              </button>
-              <button className="action-button tertiary">
-                Manage Team
-              </button>
-            </div>
-          </div>
-
-          <div className="recent-activity">
-            <h4>Recent Activity</h4>
-            <ul className="activity-list">
-              <li className="activity-item">
-                <span className="activity-time">2 hours ago</span>
-                <span className="activity-description">
-                  Completed project review
-                </span>
-              </li>
-              <li className="activity-item">
-                <span className="activity-time">4 hours ago</span>
-                <span className="activity-description">
-                  Updated team settings
-                </span>
-              </li>
-              <li className="activity-item">
-                <span className="activity-time">1 day ago</span>
-                <span className="activity-description">
-                  Created new milestone
-                </span>
-              </li>
-            </ul>
-          </div>
+        <div className="todo-section">
+          <TodoList />
         </div>
       </div>
     </div>

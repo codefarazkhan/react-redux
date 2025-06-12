@@ -13,6 +13,8 @@ app.use(express.json())
 
 // Mock database
 const users = []
+const todos = []
+let todoIdCounter = 1
 
 // Helper function to generate JWT
 const generateToken = (userId) => {
@@ -117,6 +119,7 @@ const authenticateToken = (req, res, next) => {
 // Protected dashboard data endpoint
 app.get('/api/dashboard', authenticateToken, (req, res) => {
   const user = users.find(u => u.id === req.user.userId)
+  const userTodos = todos.filter(todo => todo.userId === req.user.userId)
   
   res.json({
     message: 'Dashboard data',
@@ -126,12 +129,119 @@ app.get('/api/dashboard', authenticateToken, (req, res) => {
       email: user.email
     },
     stats: {
-      totalProjects: 12,
-      completedTasks: 48,
-      pendingTasks: 7,
-      goalsAchieved: 23
+      totalTodos: userTodos.length,
+      completedTodos: userTodos.filter(todo => todo.completed).length,
+      pendingTodos: userTodos.filter(todo => !todo.completed).length,
+      todosToday: userTodos.filter(todo => {
+        const today = new Date().toDateString()
+        const todoDate = new Date(todo.createdAt).toDateString()
+        return today === todoDate
+      }).length
     }
   })
+})
+
+// Todo CRUD endpoints
+
+// Get all todos for authenticated user
+app.get('/api/todos', authenticateToken, (req, res) => {
+  const userTodos = todos.filter(todo => todo.userId === req.user.userId)
+  res.json({
+    message: 'Todos retrieved successfully',
+    todos: userTodos
+  })
+})
+
+// Create a new todo
+app.post('/api/todos', authenticateToken, (req, res) => {
+  try {
+    const { title, description, priority = 'medium', dueDate } = req.body
+
+    if (!title) {
+      return res.status(400).json({ message: 'Title is required' })
+    }
+
+    const todo = {
+      id: todoIdCounter++,
+      userId: req.user.userId,
+      title,
+      description: description || '',
+      completed: false,
+      priority,
+      dueDate: dueDate || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    todos.push(todo)
+
+    res.status(201).json({
+      message: 'Todo created successfully',
+      todo
+    })
+  } catch (error) {
+    console.error('Create todo error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+// Update a todo
+app.put('/api/todos/:id', authenticateToken, (req, res) => {
+  try {
+    const todoId = parseInt(req.params.id)
+    const { title, description, completed, priority, dueDate } = req.body
+
+    const todoIndex = todos.findIndex(todo => 
+      todo.id === todoId && todo.userId === req.user.userId
+    )
+
+    if (todoIndex === -1) {
+      return res.status(404).json({ message: 'Todo not found' })
+    }
+
+    // Update todo
+    todos[todoIndex] = {
+      ...todos[todoIndex],
+      title: title !== undefined ? title : todos[todoIndex].title,
+      description: description !== undefined ? description : todos[todoIndex].description,
+      completed: completed !== undefined ? completed : todos[todoIndex].completed,
+      priority: priority !== undefined ? priority : todos[todoIndex].priority,
+      dueDate: dueDate !== undefined ? dueDate : todos[todoIndex].dueDate,
+      updatedAt: new Date().toISOString()
+    }
+
+    res.json({
+      message: 'Todo updated successfully',
+      todo: todos[todoIndex]
+    })
+  } catch (error) {
+    console.error('Update todo error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
+})
+
+// Delete a todo
+app.delete('/api/todos/:id', authenticateToken, (req, res) => {
+  try {
+    const todoId = parseInt(req.params.id)
+    
+    const todoIndex = todos.findIndex(todo => 
+      todo.id === todoId && todo.userId === req.user.userId
+    )
+
+    if (todoIndex === -1) {
+      return res.status(404).json({ message: 'Todo not found' })
+    }
+
+    todos.splice(todoIndex, 1)
+
+    res.json({
+      message: 'Todo deleted successfully'
+    })
+  } catch (error) {
+    console.error('Delete todo error:', error)
+    res.status(500).json({ message: 'Server error' })
+  }
 })
 
 app.listen(PORT, () => {
@@ -140,4 +250,8 @@ app.listen(PORT, () => {
   console.log('- POST /api/auth/signup')
   console.log('- POST /api/auth/login')
   console.log('- GET /api/dashboard (protected)')
+  console.log('- GET /api/todos (protected)')
+  console.log('- POST /api/todos (protected)')
+  console.log('- PUT /api/todos/:id (protected)')
+  console.log('- DELETE /api/todos/:id (protected)')
 }) 
