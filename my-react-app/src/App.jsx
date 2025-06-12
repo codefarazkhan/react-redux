@@ -1,32 +1,20 @@
-import { useSelector, useDispatch } from 'react-redux'
-import { increment, decrement, incrementByAmount, reset } from './store/counterSlice'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Home from './components/Home'
+import Page1 from './components/Page1'
+import Page2 from './components/Page2'
 import './App.css'
 
 function App() {
-  const count = useSelector((state) => state.counter.value)
-  const dispatch = useDispatch()
-
   return (
-    <div className="App">
-      <h1>Redux Counter Example</h1>
-      <div>
-        <h2>Counter: {count}</h2>
-        <div>
-          <button onClick={() => dispatch(increment())}>
-            Increment
-          </button>
-          <button onClick={() => dispatch(decrement())}>
-            Decrement
-          </button>
-          <button onClick={() => dispatch(incrementByAmount(5))}>
-            Add 5
-          </button>
-          <button onClick={() => dispatch(reset())}>
-            Reset
-          </button>
-        </div>
+    <Router>
+      <div className="App">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/page1" element={<Page1 />} />
+          <Route path="/page2" element={<Page2 />} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   )
 }
 
