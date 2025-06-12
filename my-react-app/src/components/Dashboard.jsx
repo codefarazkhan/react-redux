@@ -1,8 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
 import { logout } from '../store/authSlice'
-import { fetchTodos } from '../store/todoSlice'
+import { clearTodos } from '../store/todoSlice'
 import TodoList from './TodoList'
 
 const Dashboard = () => {
@@ -11,13 +10,8 @@ const Dashboard = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth)
   const { todos } = useSelector((state) => state.todos)
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      dispatch(fetchTodos())
-    }
-  }, [dispatch, isAuthenticated])
-
   const handleLogout = () => {
+    dispatch(clearTodos())
     dispatch(logout())
     navigate('/')
   }

@@ -6,14 +6,17 @@ import TodoForm from './TodoForm'
 
 const TodoList = () => {
   const dispatch = useDispatch()
-  const { todos, isLoading, error } = useSelector((state) => state.todos)
+  const { todos, isLoading, error, hasLoaded } = useSelector((state) => state.todos)
   const [showForm, setShowForm] = useState(false)
   const [editingTodo, setEditingTodo] = useState(null)
   const [filter, setFilter] = useState('all') // all, completed, pending
 
   useEffect(() => {
-    dispatch(fetchTodos())
-  }, [dispatch])
+    // Only fetch todos if they haven't been loaded yet and we're not already loading
+    if (!hasLoaded && !isLoading) {
+      dispatch(fetchTodos())
+    }
+  }, [dispatch, hasLoaded, isLoading])
 
   useEffect(() => {
     if (error) {

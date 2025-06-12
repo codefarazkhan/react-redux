@@ -4,7 +4,7 @@ import api from '../utils/api'
 // Async thunks for authentication
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
-  async ({ email, password }) => {
+  async ({ email, password }, { dispatch }) => {
     const response = await api.post('/auth/login', {
       email,
       password
@@ -13,13 +13,16 @@ export const loginUser = createAsyncThunk(
     // Store token in localStorage
     localStorage.setItem('token', response.data.token)
     
+    // Clear any existing todos from previous user
+    dispatch({ type: 'todos/clearTodos' })
+    
     return response.data
   }
 )
 
 export const signupUser = createAsyncThunk(
   'auth/signupUser',
-  async ({ name, email, password }) => {
+  async ({ name, email, password }, { dispatch }) => {
     const response = await api.post('/auth/signup', {
       name,
       email,
@@ -28,6 +31,9 @@ export const signupUser = createAsyncThunk(
     
     // Store token in localStorage
     localStorage.setItem('token', response.data.token)
+    
+    // Clear any existing todos from previous user
+    dispatch({ type: 'todos/clearTodos' })
     
     return response.data
   }

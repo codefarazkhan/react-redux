@@ -38,7 +38,8 @@ export const deleteTodo = createAsyncThunk(
 const initialState = {
   todos: [],
   isLoading: false,
-  error: null
+  error: null,
+  hasLoaded: false
 }
 
 const todoSlice = createSlice({
@@ -47,6 +48,12 @@ const todoSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null
+    },
+    clearTodos: (state) => {
+      state.todos = []
+      state.hasLoaded = false
+      state.error = null
+      state.isLoading = false
     }
   },
   extraReducers: (builder) => {
@@ -59,6 +66,7 @@ const todoSlice = createSlice({
       .addCase(fetchTodos.fulfilled, (state, action) => {
         state.isLoading = false
         state.todos = action.payload.todos
+        state.hasLoaded = true
       })
       .addCase(fetchTodos.rejected, (state, action) => {
         state.isLoading = false
@@ -100,5 +108,5 @@ const todoSlice = createSlice({
   }
 })
 
-export const { clearError } = todoSlice.actions
+export const { clearError, clearTodos } = todoSlice.actions
 export default todoSlice.reducer 

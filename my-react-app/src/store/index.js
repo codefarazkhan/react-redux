@@ -10,7 +10,7 @@ import todoReducer from './todoSlice'
 const persistConfig = {
   key: 'root',
   storage,
-  blacklist: ['auth'] // Don't persist auth state as we handle tokens separately
+  blacklist: ['auth', 'todos'] // Don't persist auth state and todos as they are user-specific
 }
 
 const rootReducer = combineReducers({
